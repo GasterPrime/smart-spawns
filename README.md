@@ -25,6 +25,20 @@ Players do not need to install anything. Install it on the server only.
 
 Fabric Language Kotlin is already bundled inside Cobblemon.
 
+## Building
+
+Gradle needs Java 25 to run (the mod itself targets Java 21).
+
+```bash
+./gradlew build
+```
+
+The jar ends up in `build/libs/`.
+
+## Bugs and ideas
+
+Open an issue at [github.com/GasterPrime/smart-spawns/issues](https://github.com/GasterPrime/smart-spawns/issues).
+
 ## License
 
 Smart Spawns is licensed under the [Mozilla Public License 2.0](LICENSE).

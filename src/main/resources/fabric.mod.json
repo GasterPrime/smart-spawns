@@ -7,6 +7,11 @@
 	"authors": [
 		"GasterPrime"
 	],
+	"contact": {
+		"homepage": "https://gasterprime.github.io/",
+		"sources": "https://github.com/GasterPrime/smart-spawns",
+		"issues": "https://github.com/GasterPrime/smart-spawns/issues"
+	},
 	"license": "MPL-2.0",
 	"environment": "*",
 	"entrypoints": {
