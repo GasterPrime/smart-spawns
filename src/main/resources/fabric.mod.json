@@ -1,0 +1,28 @@
+{
+	"schemaVersion": 1,
+	"id": "smartspawns",
+	"version": "${version}",
+	"name": "Smart Spawns",
+	"description": "Server-side spawn rules for Cobblemon: keep fully evolved Pokémon out of the wild and stop same-species clusters.",
+	"authors": [
+		"GasterPrime"
+	],
+	"license": "MPL-2.0",
+	"environment": "*",
+	"entrypoints": {
+		"main": [
+			{
+				"adapter": "kotlin",
+				"value": "dev.gasterprime.smartspawns.SmartSpawns"
+			}
+		]
+	},
+	"depends": {
+		"fabricloader": ">=0.17.2",
+		"minecraft": "~1.21.1",
+		"java": ">=21",
+		"fabric-api": "*",
+		"fabric-language-kotlin": ">=1.13.0",
+		"cobblemon": ">=1.8.0"
+	}
+}
