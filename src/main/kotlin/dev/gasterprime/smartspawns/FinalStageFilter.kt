@@ -16,6 +16,7 @@ import com.cobblemon.mod.common.api.spawning.detail.SpawnDetail
 import com.cobblemon.mod.common.api.spawning.detail.SpawnPool
 import java.util.IdentityHashMap
 import java.util.TreeSet
+import java.util.WeakHashMap
 
 /**
  * Takes fully evolved Pokémon out of Cobblemon's world spawn pool.
@@ -38,6 +39,11 @@ object FinalStageFilter {
     private val herds = IdentityHashMap<PokemonHerdSpawnDetail, HerdOriginal>()
     private var removedFrom: SpawnPool? = null
     private var subscribed = false
+
+    // Rules from the last apply(), reused when entries injected at spawn time are checked.
+    private var allowNames: Set<String> = emptySet()
+    private var blockNames: Set<String> = emptySet()
+    private val blockedCache = WeakHashMap<SpawnDetail, Boolean>()
 
     var blockedNames: Set<String> = emptySet()
         private set
@@ -87,6 +93,9 @@ object FinalStageFilter {
 
         val allow = SpeciesData.names(config.allowSpecies)
         val block = SpeciesData.names(config.blockSpecies)
+        allowNames = allow
+        blockNames = block
+        blockedCache.clear()
         val names = TreeSet<String>()
         val total = details.size
         var changed = 0
@@ -131,6 +140,28 @@ object FinalStageFilter {
             "[Smart Spawns] Removed {} of {} spawn entries, trimmed {} herds, {} species kept out of the wild (see config/smartspawns/blocked-species.txt)",
             removedCount, totalCount, herdsChanged, names.size,
         )
+    }
+
+    /**
+     * Whether a spawn entry that is not in the pool (one injected at spawn time) should never spawn.
+     * Entries still in the pool already passed [apply], so they come back false. Injected herds can't be
+     * trimmed member by member, so they are blocked only when [apply] would have removed the whole herd.
+     */
+    @Synchronized
+    fun isBlocked(detail: SpawnDetail): Boolean = blockedCache.getOrPut(detail) {
+        val config = SmartSpawns.config
+        runCatching {
+            when (detail) {
+                is PokemonSpawnDetail -> blockedName(detail.pokemon, config, allowNames, blockNames) != null
+                is PokemonHerdSpawnDetail -> {
+                    val members = detail.herdablePokemon.orEmpty()
+                    val kept = members.filter { blockedName(it.pokemon, config, allowNames, blockNames) == null }
+                    val droppedAlphaLeader = members.any { it !in kept && HerdRoles.isLeader(it) && isAlpha(it.pokemon) }
+                    members.isNotEmpty() && (kept.isEmpty() || (droppedAlphaLeader && kept.none(HerdRoles::isLeader)))
+                }
+                else -> false
+            }
+        }.getOrDefault(false)
     }
 
     private enum class HerdResult { UNCHANGED, CHANGED, REMOVE }

@@ -38,6 +38,9 @@ object AntiClusterInfluence : SpawningInfluence {
 
     private const val MAX_PLANNED = 5000
 
+    /** Start the server with -Dsmartspawns.debug=true to log every natural spawn and the entry it came from. */
+    private val DEBUG = java.lang.Boolean.getBoolean("smartspawns.debug")
+
     private val planned = ArrayDeque<Planned>()
     private val keysOf = WeakHashMap<SpawnDetail, Set<String>>()
     private var lastPosition: SpawnablePosition? = null
@@ -72,6 +75,10 @@ object AntiClusterInfluence : SpawningInfluence {
         if (action !is PokemonSpawnAction) return
         val config = SmartSpawns.config
         try {
+            if (DEBUG) {
+                SmartSpawns.LOGGER.info("[Smart Spawns/debug] spawning {} at {} from {} ({})",
+                    action.props.asString(" "), action.spawnablePosition.position, action.detail.id, action.detail.type)
+            }
             if (config.underleveledEvolutions.raiseToEvolutionLevel) raiseUnderleveled(action)
             remember(action, config.antiCluster)
         } catch (e: Throwable) {
@@ -99,8 +106,11 @@ object AntiClusterInfluence : SpawningInfluence {
     }
 
     private fun raiseUnderleveled(action: PokemonSpawnAction) {
-        val species = SpeciesData.species(action.props.species) ?: return
-        val minLevel = SpeciesData.evolutionLevel(SpeciesData.form(species, action.props.aspects)) ?: return
+        val props = action.props
+        val species = SpeciesData.species(props.species) ?: return
+        val minLevel = SpeciesData.evolutionLevel(SpeciesData.form(species, props.aspects)) ?: return
+        // The entity's level is rolled from levelRange when it is created, so that is the value to change.
+        // props can be shared with the spawn entry itself and must not be edited.
         val range = action.levelRange ?: return
         if (range.first < minLevel) {
             action.levelRange = minLevel..maxOf(range.last, minLevel)

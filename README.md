@@ -30,6 +30,7 @@ All commands need operator level 2 or the server console.
 | `/smartspawns` | Shows how many spawn entries and species are kept out, and the anti-cluster settings |
 | `/smartspawns reload` | Reads the config again and re-applies it, no restart needed |
 | `/smartspawns check <species> [form]` | Shows what a species evolves from and into, and whether it can spawn in the wild. Example: `/smartspawns check raichu alolan` |
+| `/smartspawns pool <species>` | Lists the spawn entries that can still spawn a species. Handy when a Pokémon shows up that you did not expect |
 
 ## Config
 
@@ -80,7 +81,9 @@ All commands need operator level 2 or the server console.
 ## Good to know
 
 - Species are removed from Cobblemon's world spawn pool itself, so fishing and Poké Snacks follow the same rule.
-- The anti-cluster rule applies to natural spawns around players.
+- Habitats (Cobblemon 1.8) add their own spawns on the fly. Those are caught as well: a blocked species gets no chance to be picked, so an Excadrill habitat still gives Drilbur but never Excadrill.
+- The anti-cluster rule applies to natural spawns around players. It lowers the odds of a new spawn next to the same species, but Pokémon still wander after spawning, so small groups can form.
+- Start the server with `-Dsmartspawns.debug=true` to log every natural spawn together with the spawn entry it came from.
 - Lowering the overall spawn rate is not part of this mod. Use `pokemonPerChunk` in `config/cobblemon/main.json`.
 
 ## Building

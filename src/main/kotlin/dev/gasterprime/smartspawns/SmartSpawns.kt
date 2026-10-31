@@ -56,11 +56,23 @@ object SmartSpawns : ModInitializer {
 
     private fun installInfluence() {
         if (influenceInstalled) return
+        influenceInstalled = true
         try {
+            PlayerSpawnerFactory.influenceBuilders.add { FinalStageInfluence }
             PlayerSpawnerFactory.influenceBuilders.add { AntiClusterInfluence }
-            influenceInstalled = true
         } catch (e: Throwable) {
-            LOGGER.error("[Smart Spawns] Could not add the anti-cluster rule to player spawners", e)
+            LOGGER.error("[Smart Spawns] Could not add spawn rules to player spawners", e)
         }
+        // Fishing and Poké Snack spawners exist from Cobblemon 1.8 on. They only get the final-stage rule.
+        try {
+            installFishingAndSnacks()
+        } catch (e: LinkageError) {
+            LOGGER.info("[Smart Spawns] No fishing or Poké Snack spawners in this Cobblemon version, skipping them")
+        }
+    }
+
+    private fun installFishingAndSnacks() {
+        com.cobblemon.mod.common.api.spawning.spawner.FishingSpawnerFactory.positionInfluenceBuilders.add { listOf(FinalStageInfluence) }
+        com.cobblemon.mod.common.api.spawning.spawner.PokeSnackSpawnerFactory.influenceBuilders.add { FinalStageInfluence }
     }
 }

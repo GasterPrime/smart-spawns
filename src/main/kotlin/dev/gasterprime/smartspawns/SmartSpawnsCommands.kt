@@ -8,6 +8,10 @@
 package dev.gasterprime.smartspawns
 
 import com.cobblemon.mod.common.api.pokemon.PokemonSpecies
+import com.cobblemon.mod.common.api.spawning.CobblemonSpawnPools
+import com.cobblemon.mod.common.api.spawning.detail.PokemonHerdSpawnDetail
+import com.cobblemon.mod.common.api.spawning.detail.PokemonSpawnDetail
+import com.cobblemon.mod.common.api.spawning.spawner.PlayerSpawnerFactory
 import com.mojang.brigadier.CommandDispatcher
 import com.mojang.brigadier.arguments.StringArgumentType
 import com.mojang.brigadier.context.CommandContext
@@ -28,6 +32,15 @@ object SmartSpawnsCommands {
                 .executes { status(it.source) }
                 .then(Commands.literal("status").executes { status(it.source) })
                 .then(Commands.literal("reload").executes { reload(it.source) })
+                .then(
+                    Commands.literal("pool").then(
+                        Commands.argument("species", StringArgumentType.word())
+                            .suggests { _, builder ->
+                                SharedSuggestionProvider.suggest(PokemonSpecies.species.map { it.resourceIdentifier.path }, builder)
+                            }
+                            .executes { pool(it) },
+                    ),
+                )
                 .then(
                     Commands.literal("check").then(
                         Commands.argument("species", StringArgumentType.word())
@@ -99,6 +112,32 @@ object SmartSpawnsCommands {
             "In the wild: " + if (blocked) "kept out" else "can spawn",
             if (blocked) ChatFormatting.RED else ChatFormatting.GREEN,
         )
+        return 1
+    }
+
+    /** Lists the spawn entries that can still spawn a species, in the pool player spawners actually use. */
+    private fun pool(context: CommandContext<CommandSourceStack>): Int {
+        val source = context.source
+        val raw = StringArgumentType.getString(context, "species")
+        val target = SpeciesData.species(raw)?.resourceIdentifier?.path
+        if (target == null) {
+            source.send("Unknown species: $raw", ChatFormatting.RED)
+            return 0
+        }
+        val pool = PlayerSpawnerFactory.spawnPool
+        val sameAsWorld = pool === CobblemonSpawnPools.WORLD_SPAWN_POOL
+        val matches = pool.details.mapNotNull { detail ->
+            val members = when (detail) {
+                is PokemonSpawnDetail -> listOf(detail.pokemon)
+                is PokemonHerdSpawnDetail -> detail.herdablePokemon.orEmpty().map { it.pokemon }
+                else -> emptyList()
+            }
+            val hit = members.firstOrNull { SpeciesData.species(it.species)?.resourceIdentifier?.path == target } ?: return@mapNotNull null
+            "${detail.id} (${detail.type}, ${detail.bucket}): ${hit.asString(" ")}"
+        }
+        source.send("Player spawn pool: ${pool.details.size} entries" + if (sameAsWorld) "" else " (not the world pool Smart Spawns filters)", ChatFormatting.GOLD)
+        source.send("Entries that can spawn $target: ${matches.size}")
+        matches.take(15).forEach { source.send(" - $it") }
         return 1
     }
 
