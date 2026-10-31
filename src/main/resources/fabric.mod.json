@@ -8,11 +8,12 @@
 		"GasterPrime"
 	],
 	"contact": {
-		"homepage": "https://gasterprime.github.io/",
+		"homepage": "https://modrinth.com/mod/smart-spawns-cobblemon",
 		"sources": "https://github.com/GasterPrime/smart-spawns",
 		"issues": "https://github.com/GasterPrime/smart-spawns/issues"
 	},
 	"license": "MPL-2.0",
+	"icon": "assets/smartspawns/icon.png",
 	"environment": "*",
 	"entrypoints": {
 		"main": [

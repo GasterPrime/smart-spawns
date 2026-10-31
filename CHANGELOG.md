@@ -1,6 +1,9 @@
 # Changelog
 
-## 0.1.0 (unreleased)
+## 0.1.0 (2026-10-31)
+
+First release.
+
 
 - Keep fully evolved Pokémon out of wild spawns, worked out from Cobblemon's evolution data, per regional form
 - Also block fully evolved Pokémon offered by Cobblemon 1.8 habitats, which add spawns outside the spawn pool

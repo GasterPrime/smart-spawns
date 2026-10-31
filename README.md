@@ -2,6 +2,8 @@
 
 Server-side spawn rules for [Cobblemon](https://modrinth.com/mod/cobblemon).
 
+Download on [Modrinth](https://modrinth.com/mod/smart-spawns-cobblemon) or from [GitHub releases](https://github.com/GasterPrime/smart-spawns/releases).
+
 - **No fully evolved Pokémon in the wild.** Venusaur, Raichu and Gyarados stop spawning, so players catch the earlier stage and evolve it. Single-stage Pokémon such as Tauros, Lapras and Ditto still spawn.
 - **No same-species clusters.** A Pokémon is less likely to spawn next to wild Pokémon of the same species, and won't spawn at all once a few are already there. Herds are included.
 - **Herds that make sense.** Herds led by an evolved form are trimmed instead of removed, because some species only ever spawn in herds.
